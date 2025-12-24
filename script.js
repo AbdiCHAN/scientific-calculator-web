@@ -1,98 +1,79 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const display = document.getElementById("display");
-  const historyList = document.getElementById("history-list");
-  let currentValue = "";
-  let previousValue = "";
-  let operator = null;
-  let memory = 0;
+const display = document.getElementById("display");
+const historyList = document.getElementById("history-list");
+const angleToggle = document.getElementById("angleToggle");
+const clickSound = new Audio("assets/click.mp3");
 
-  const buttons = document.querySelectorAll(".btn");
-  buttons.forEach(button => {
-    button.addEventListener("click", () => {
-      handleInput(button.getAttribute("data-value"));
-    });
-  });
+let expr = "";
+let isDeg = true;
 
-  document.addEventListener("keydown", (e) => {
-    if ((e.key >= '0' && e.key <= '9') || e.key === '.') handleInput(e.key);
-    else if (['+', '-', '*', '/'].includes(e.key)) handleInput(e.key);
-    else if (e.key === 'Enter') handleInput('=');
-    else if (e.key === 'Backspace') handleInput('C');
-  });
+function updateDisplay(v = expr) {
+  display.value = v || "0";
+}
 
-  function handleInput(value) {
-    if (["MC","MR","M+","M-"].includes(value)) return handleMemory(value);
+function factorial(n) {
+  if (!Number.isInteger(n) || n < 0) return NaN;
+  return n <= 1 ? 1 : n * factorial(n - 1);
+}
 
-    switch (value) {
-      case "C":
-        currentValue = "";
-        previousValue = "";
-        operator = null;
-        updateDisplay();
-        break;
-      case "=":
-        calculate();
-        break;
-      case "+":
-      case "-":
-      case "*":
-      case "/":
-        setOperator(value);
-        break;
-      default:
-        appendNumber(value);
-        break;
-    }
+angleToggle.onclick = () => {
+  isDeg = !isDeg;
+  angleToggle.textContent = isDeg ? "DEG" : "RAD";
+};
+
+function sanitize(e) {
+  return e
+    .replace(/π/g, Math.PI)
+    .replace(/\be\b/g, Math.E)
+    .replace(/\^/g, "**")
+    .replace(/sqrt\(/g, "Math.sqrt(")
+    .replace(/abs\(/g, "Math.abs(")
+    .replace(/log\(/g, "Math.log10(")
+    .replace(/ln\(/g, "Math.log(")
+    .replace(/sin\(/g, isDeg ? "Math.sin(Math.PI/180*" : "Math.sin(")
+    .replace(/cos\(/g, isDeg ? "Math.cos(Math.PI/180*" : "Math.cos(")
+    .replace(/tan\(/g, isDeg ? "Math.tan(Math.PI/180*" : "Math.tan(")
+    .replace(/(\d+)!/g, "factorial($1)");
+}
+
+function evaluate() {
+  try {
+    const result = Function(
+      "factorial",
+      `"use strict";return(${sanitize(expr)})`
+    )(factorial);
+
+    if (!isFinite(result)) throw Error();
+
+    historyList.innerHTML += `<li>${expr} = ${result}</li>`;
+    expr = result.toString();
+  } catch {
+    expr = "Error";
   }
+  updateDisplay();
+}
 
-  function appendNumber(num) {
-    if (num === "." && currentValue.includes(".")) return;
-    currentValue += num;
+document.querySelectorAll(".btn").forEach(btn => {
+  btn.onclick = () => {
+    clickSound.currentTime = 0;
+    clickSound.play();
+
+    const v = btn.dataset.value;
+    const a = btn.dataset.action;
+
+    if (a === "clear") expr = "";
+    else if (a === "delete") expr = expr.slice(0, -1);
+    else if (a === "equals") return evaluate();
+    else expr += v;
+
     updateDisplay();
-  }
-
-  function setOperator(op) {
-    if (currentValue === "" && previousValue !== "") { operator = op; return; }
-    if (previousValue !== "") calculate(); else previousValue = currentValue;
-    currentValue = "";
-    operator = op;
-  }
-
-  function calculate() {
-    if (!operator || currentValue === "" || previousValue === "") return;
-    const prev = parseFloat(previousValue);
-    const curr = parseFloat(currentValue);
-    let result;
-    switch (operator) {
-      case "+": result = prev + curr; break;
-      case "-": result = prev - curr; break;
-      case "*": result = prev * curr; break;
-      case "/": result = curr === 0 ? "Error" : prev / curr; break;
-      default: return;
-    }
-    addHistory(`${previousValue} ${operator} ${currentValue} = ${result}`);
-    currentValue = result.toString();
-    previousValue = "";
-    operator = null;
-    updateDisplay();
-  }
-
-  function updateDisplay() { display.value = currentValue || "0"; }
-
-  function handleMemory(action) {
-    const currNum = parseFloat(currentValue) || 0;
-    switch(action) {
-      case "MC": memory = 0; break;
-      case "MR": currentValue = memory.toString(); updateDisplay(); break;
-      case "M+": memory += currNum; break;
-      case "M-": memory -= currNum; break;
-    }
-  }
-
-  function addHistory(entry) {
-    const li = document.createElement("li");
-    li.textContent = entry;
-    historyList.prepend(li);
-    if (historyList.children.length > 10) historyList.removeChild(historyList.lastChild);
-  }
+  };
 });
+
+document.addEventListener("keydown", e => {
+  if (/[0-9.+\-*/()]/.test(e.key)) expr += e.key;
+  else if (e.key === "Enter") return evaluate();
+  else if (e.key === "Backspace") expr = expr.slice(0, -1);
+  else if (e.key === "Escape") expr = "";
+  updateDisplay();
+});
+
