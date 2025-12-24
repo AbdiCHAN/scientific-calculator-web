@@ -1,113 +1,108 @@
-/* style.css - Fully Responsive Calculator */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+* { box-sizing: border-box; margin:0; padding:0; }
 
-body, html {
+html, body {
   height: 100%;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
   display: flex;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(135deg, #6a11cb, #2575fc);
-  transition: background 0.5s;
+  background-color: black;
+  position: relative;
+}
+
+#flame-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
 }
 
 .calculator-container {
   width: 95%;
-  max-width: 500px;    /* fits page */
+  max-width: 450px;
   padding: 10px;
+  position: relative;
+  z-index: 1;
 }
 
 .calculator {
   width: 100%;
-  background-color: #1e1e1e;
-  border-radius: 20px;
-  padding: 15px;
-  box-shadow: 0px 10px 30px rgba(0,0,0,0.5);
-  resize: both;
-  overflow: auto;
+  background-color: rgba(0,0,0,0.7);
+  border-radius: 25px;
+  padding: 20px;
+  box-shadow: 0 0 40px rgba(255, 215, 0, 0.6);
 }
 
-.display {
+#display {
   width: 100%;
-  height: 60px;
-  font-size: 1.8rem;
+  height: 70px;
+  font-size: 2rem;
   text-align: right;
-  padding: 10px;
-  border-radius: 12px;
+  padding: 10px 15px;
+  border-radius: 15px;
   border: none;
-  background-color: #2c2c2c;
-  color: #fff;
-  margin-bottom: 15px;
-  transition: background 0.3s, color 0.3s;
+  background-color: rgba(34,34,34,0.9);
+  color: gold;
+  margin-bottom: 10px;
+  box-shadow: inset 0 0 10px rgba(255, 215, 0, 0.4);
 }
+
+.memory-buttons {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.memory { background: linear-gradient(#444, #222); color: gold; }
 
 .buttons {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-  margin-bottom: 15px;
+  gap: 12px;
 }
 
 .btn {
-  padding: 15px;
-  font-size: 1.2rem;
+  padding: 18px;
+  font-size: 1.4rem;
   border: none;
-  border-radius: 10px;
+  border-radius: 12px;
   cursor: pointer;
   color: #fff;
-  background-color: #333;
-  transition: 0.2s;
+  background: linear-gradient(to bottom, #333, #000);
+  box-shadow: 0 4px #b8860b;
+  transition: all 0.1s ease-in-out;
 }
 
-.btn:hover { background-color: #555; transform: scale(1.05); }
+.btn:hover { transform: scale(1.05); box-shadow: 0 6px #ffd700; }
+.btn:active { transform: translateY(2px); box-shadow: 0 2px #b8860b; }
 
-.btn.operator { background-color: #ff9500; }
-.btn.operator:hover { background-color: #ffa733; }
-
-.btn.equal { background-color: #34c759; }
-.btn.equal:hover { background-color: #4dd36f; transform: scale(1.1); }
-
-.btn.zero { grid-column: span 2; }
-
-.btn.func { background-color: #5555ff; }
-.btn.func:hover { background-color: #7777ff; }
-
-.btn.control { background-color: #ff3b30; }
-.btn.control:hover { background-color: #ff5c50; }
+.operator { background: linear-gradient(#ffcc33, #b8860b); color: #000; }
+.equal { background: linear-gradient(#ffd700, #ffa500); color: #000; }
+.control { background: linear-gradient(#ff4500, #b22222); color: #fff; }
+.zero { grid-column: span 2; }
 
 .history {
-  background-color: #2c2c2c;
+  background: rgba(26,26,26,0.8);
+  margin-top: 15px;
+  padding: 10px;
   border-radius: 12px;
-  padding: 8px;
-  max-height: 150px;
+  max-height: 120px;
   overflow-y: auto;
-  color: #fff;
+  color: gold;
 }
 
-.history h3 { margin-bottom: 8px; }
-.history ul { list-style: none; }
+.history h3 { margin-bottom: 5px; font-size: 1.1rem; text-align: center; }
+.history ul { list-style: none; padding-left: 0; }
+.history li { margin-bottom: 4px; font-size: 0.95rem; }
 
-/* Light Theme */
-body.light {
-  background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
-}
-
-body.light .calculator { background-color: #fff; }
-body.light .display { background-color: #e0e0e0; color: #000; }
-body.light .btn { background-color: #ddd; color: #000; }
-body.light .btn.operator { background-color: #ffb347; }
-body.light .btn.func { background-color: #89f7fe; }
-body.light .btn.control { background-color: #ff6b6b; }
-body.light .btn.equal { background-color: #66ff66; }
-
-/* Responsive Media Queries */
-@media (max-width: 450px) {
-  .display { font-size: 1.4rem; height: 50px; }
-  .btn { padding: 12px; font-size: 1rem; }
-  .calculator { padding: 10px; }
-  .history { max-height: 120px; }
+@media (max-width: 480px) {
+  #display { font-size: 1.6rem; height: 60px; }
+  .btn { padding: 14px; font-size: 1.2rem; }
+  .memory-buttons { gap: 6px; }
 }
